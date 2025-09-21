@@ -287,12 +287,12 @@ const GrimReaperLoader: React.FC<GrimReaperLoaderProps> = ({
       </div>
 
       {/* Sound control */}
-      <button
+      {/* <button
         onClick={toggleSound}
         className="absolute top-4 right-4 md:top-6 md:right-6 bg-gray-900/50 border border-gray-600/50 text-gray-300 px-3 py-2 md:px-4 md:py-2 rounded text-xs md:text-sm hover:bg-gray-800/60 transition-all duration-300 backdrop-blur-sm hover:scale-105"
       >
         {soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-      </button>
+      </button> */}
 
       <div className="text-center relative z-10 p-5">
         {/* Reaper wrapper */}
