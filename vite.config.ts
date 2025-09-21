@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(),tailwindcss()],
+  base: "/GrimTok/",
   build: {
     outDir: "dist", // output folder for gh-pages
   },
