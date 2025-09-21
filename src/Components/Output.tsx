@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import OutputLoader from "./Loader/OutputLoader";
 // import { useNavigate } from "react-router-dom";
-import { UserContext } from "../Context/ContextApi";
+import { UserContext } from "../Context/UserContext";
 
 export const Output: React.FC = () => {
   const [isLoading, setLoading] = useState<boolean>(true);
   //   const navigate = useNavigate();
 
-  const { data } = useContext(UserContext);
+  const context = useContext(UserContext);
+  if (!context) throw new Error("UserContext not provided");
+  const { data } = context;
 
   const [timeLeft, setTimeLeft] = useState<{ days: number }>({ days: 0 });
 
@@ -73,9 +75,11 @@ export const Output: React.FC = () => {
         </div>
       </div>
 
-        {/* Timer */}
+      {/* Timer */}
       <div className="mt-8 text-center">
-        <div className="text-red-500 font-bold text-2xl mb-2">Time Left Until Fate</div>
+        <div className="text-red-500 font-bold text-2xl mb-2">
+          Time Left Until Fate
+        </div>
         <div className="text-4xl font-extrabold text-gray-200 drop-shadow-lg animate-pulse">
           {timeLeft.days} Days
         </div>

@@ -2,11 +2,10 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { App } from './App'
-import { UserContextProvider } from './Context/ContextApi'
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom'
 import OutputPage from './OutputPage'
 // import { OutputPage } from './Components/Output'
-
+import { UserContextProvider } from './Context/UserContextProvider'
 const router = createBrowserRouter(createRoutesFromElements(
   <Route>
       <Route path='' element={<App/>} />
