@@ -7,7 +7,7 @@ import { UserContextProvider } from "./Context/UserContextProvider";
 
 createRoot(document.getElementById("root")!).render(
   <UserContextProvider>
-    <BrowserRouter basename="/GrimTok">
+    <BrowserRouter basename="/">
       {" "}
       {/* Add basename if deployed on subpath */}
       <Routes>
