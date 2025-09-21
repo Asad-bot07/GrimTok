@@ -1,26 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface GrimReaperLoaderProps {
   onLoadingComplete?: () => void;
   duration?: number; // in seconds
-  audioSrc?: string; // Audio file source
-  enableGeneratedSound?: boolean; // Enable Web Audio API generated sounds
 }
 
 const GrimReaperLoader: React.FC<GrimReaperLoaderProps> = ({ 
   onLoadingComplete, 
-  duration = 8,
-  audioSrc,
-  enableGeneratedSound = true
+  duration = 8
 }) => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
 
   const loadingTexts = [
     "Summoning Darkness...",
@@ -33,160 +24,19 @@ const GrimReaperLoader: React.FC<GrimReaperLoaderProps> = ({
     "Conjuring Spirits..."
   ];
 
-  const createScarySound = useCallback(() => {
-    if (!soundEnabled || !enableGeneratedSound) return;
-    
-    try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-
-      audioContextRef.current = new AudioContext();
-      oscillatorRef.current = audioContextRef.current.createOscillator();
-      gainNodeRef.current = audioContextRef.current.createGain();
-      
-      oscillatorRef.current.connect(gainNodeRef.current);
-      gainNodeRef.current.connect(audioContextRef.current.destination);
-      
-      oscillatorRef.current.frequency.setValueAtTime(35, audioContextRef.current.currentTime);
-      oscillatorRef.current.type = 'sawtooth';
-      
-      gainNodeRef.current.gain.setValueAtTime(0, audioContextRef.current.currentTime);
-      gainNodeRef.current.gain.linearRampToValueAtTime(0.08, audioContextRef.current.currentTime + 2);
-      
-      oscillatorRef.current.start(audioContextRef.current.currentTime);
-      
-      // Add periodic scary effects
-      const scaryInterval = setInterval(() => {
-        if (soundEnabled && audioContextRef.current && oscillatorRef.current && gainNodeRef.current) {
-          const now = audioContextRef.current.currentTime;
-          oscillatorRef.current.frequency.setValueAtTime(Math.random() * 40 + 15, now);
-          gainNodeRef.current.gain.setValueAtTime(Math.random() * 2 + 0.03, now);
-        } else {
-          clearInterval(scaryInterval);
-        }
-      }, 2000 + Math.random() * 3000);
-      
-    } catch (e) {
-      console.log('Web Audio API not supported');
-    }
-  }, [soundEnabled, enableGeneratedSound]);
-
-  const playAudioFile = useCallback(() => {
-    if (!soundEnabled || !audioSrc) return;
-    
-    if (audioRef.current) {
-      audioRef.current.volume = 0.6;
-      audioRef.current.loop = true;
-      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
-    }
-  }, [soundEnabled, audioSrc]);
-
-  const stopAllSounds = useCallback(() => {
-    // Stop generated sound
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    oscillatorRef.current = null;
-    gainNodeRef.current = null;
-
-    // Stop audio file
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-  }, []);
-
-  const toggleSound = useCallback(() => {
-    setSoundEnabled(prev => {
-      const newState = !prev;
-      if (newState) {
-        if (enableGeneratedSound) createScarySound();
-        if (audioSrc) playAudioFile();
-      } else {
-        stopAllSounds();
-      }
-      return newState;
-    });
-  }, [createScarySound, playAudioFile, stopAllSounds, enableGeneratedSound, audioSrc]);
-
-  const addFlashEffect = useCallback(() => {
-    const flash = document.createElement('div');
-    flash.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(30, 30, 30, 0.8);
-      pointer-events: none;
-      z-index: 1000;
-      animation: ghostFlash 0.3s ease-out;
-    `;
-    
-    if (!document.querySelector('#flash-style')) {
-      const style = document.createElement('style');
-      style.id = 'flash-style';
-      style.textContent = `
-        @keyframes ghostFlash {
-          0% { opacity: 0; }
-          50% { opacity: 1; }
-          100% { opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(flash);
-    
-    setTimeout(() => {
-      if (document.body.contains(flash)) {
-        document.body.removeChild(flash);
-      }
-    }, 300);
-  }, []);
-
-  // Initialize sounds on first click
-  useEffect(() => {
-    const handleFirstClick = () => {
-      if (soundEnabled) {
-        if (enableGeneratedSound && !audioContextRef.current) {
-          createScarySound();
-        }
-        if (audioSrc && audioRef.current) {
-          playAudioFile();
-        }
-      }
-    };
-
-    document.addEventListener('click', handleFirstClick, { once: true });
-    return () => document.removeEventListener('click', handleFirstClick);
-  }, [createScarySound, playAudioFile, soundEnabled, enableGeneratedSound, audioSrc]);
-
   // Text rotation effect
   useEffect(() => {
     const textInterval = setInterval(() => {
       setCurrentTextIndex(prev => (prev + 1) % loadingTexts.length);
-    }, 300);
+    }, 1500);
 
     return () => clearInterval(textInterval);
   }, [loadingTexts.length]);
 
-  // Random flash effect
-  useEffect(() => {
-    const flashInterval = setInterval(() => {
-      if (Math.random() > 0.4) {
-        addFlashEffect();
-      }
-    }, 6000 + Math.random() * 8000);
-
-    return () => clearInterval(flashInterval);
-  }, [addFlashEffect]);
-
   // Progress bar animation
   useEffect(() => {
     const startTime = Date.now();
-    const targetDuration = duration * 300;
+    const targetDuration = duration * 1000;
     
     progressIntervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -210,24 +60,8 @@ const GrimReaperLoader: React.FC<GrimReaperLoaderProps> = ({
     };
   }, [duration, onLoadingComplete]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopAllSounds();
-    };
-  }, [stopAllSounds]);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-black">
-      {/* Audio element for custom audio file */}
-      {audioSrc && (
-        <audio ref={audioRef} preload="auto">
-          <source src={audioSrc} type="audio/mpeg" />
-          <source src={audioSrc} type="audio/wav" />
-          <source src={audioSrc} type="audio/ogg" />
-        </audio>
-      )}
-
       {/* Space/Stars background */}
       <div className="absolute inset-0">
         {/* Stars */}
@@ -285,14 +119,6 @@ const GrimReaperLoader: React.FC<GrimReaperLoaderProps> = ({
           <div className="absolute top-10 right-0 w-2 h-1 bg-gray-900 opacity-70 -rotate-30"></div>
         </div>
       </div>
-
-      {/* Sound control */}
-      {/* <button
-        onClick={toggleSound}
-        className="absolute top-4 right-4 md:top-6 md:right-6 bg-gray-900/50 border border-gray-600/50 text-gray-300 px-3 py-2 md:px-4 md:py-2 rounded text-xs md:text-sm hover:bg-gray-800/60 transition-all duration-300 backdrop-blur-sm hover:scale-105"
-      >
-        {soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-      </button> */}
 
       <div className="text-center relative z-10 p-5">
         {/* Reaper wrapper */}

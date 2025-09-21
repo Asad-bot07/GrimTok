@@ -38,7 +38,7 @@ export const Output: React.FC = () => {
     // Simulate loader duration
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 10000);
+    }, 15000);
 
     return () => clearTimeout(timer);
   }, []);

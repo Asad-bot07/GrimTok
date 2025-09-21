@@ -1,24 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SequentialLoaderProps {
   onComplete?: () => void;
   duration?: number; // Total duration in seconds
-  enableSound?: boolean;
+  // enableSound?: boolean;
 }
 
 const OutputLoader: React.FC<SequentialLoaderProps> = ({
   onComplete,
   duration = 15,
-  enableSound = true
+  // enableSound = true
 }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(enableSound);
   const [isComplete, setIsComplete] = useState(false);
-
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
 
   const loadingMessages = [
     "Consulting the Grim Reaper…",
@@ -36,44 +31,6 @@ const OutputLoader: React.FC<SequentialLoaderProps> = ({
     { start: 80, end: 100 }
   ];
 
-  // Sound creation
-  const createAtmosphericSound = useCallback(() => {
-    if (!soundEnabled) return;
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-
-    audioContextRef.current = new AudioContext();
-    oscillatorRef.current = audioContextRef.current.createOscillator();
-    gainNodeRef.current = audioContextRef.current.createGain();
-
-    oscillatorRef.current.connect(gainNodeRef.current);
-    gainNodeRef.current.connect(audioContextRef.current.destination);
-
-    oscillatorRef.current.frequency.setValueAtTime(30, audioContextRef.current.currentTime);
-    oscillatorRef.current.type = 'sawtooth';
-
-    gainNodeRef.current.gain.setValueAtTime(0.05, audioContextRef.current.currentTime);
-
-    oscillatorRef.current.start();
-  }, [soundEnabled]);
-
-  const stopSound = useCallback(() => {
-    if (audioContextRef.current) audioContextRef.current.close();
-    audioContextRef.current = null;
-    oscillatorRef.current = null;
-    gainNodeRef.current = null;
-  }, []);
-
-  const toggleSound = useCallback(() => {
-    setSoundEnabled(prev => {
-      const newState = !prev;
-      if (newState) createAtmosphericSound();
-      else stopSound();
-      return newState;
-    });
-  }, [createAtmosphericSound, stopSound]);
-
-  // Main progress and message logic
   useEffect(() => {
     const startTime = Date.now();
     const totalDuration = duration * 1000;
@@ -83,32 +40,27 @@ const OutputLoader: React.FC<SequentialLoaderProps> = ({
       const newProgress = Math.min((elapsed / totalDuration) * 100, 100);
       setProgress(newProgress);
 
-      const currentTiming = messageTimings.findIndex(t => newProgress >= t.start && newProgress < t.end);
-      if (currentTiming !== -1) setCurrentMessageIndex(currentTiming);
+      // Update message index based on progress
+      const currentTimingIndex = messageTimings.findIndex(
+        t => newProgress >= t.start && newProgress < t.end
+      );
+      if (currentTimingIndex !== -1) {
+        setCurrentMessageIndex(currentTimingIndex);
+      }
 
+      // Complete condition
       if (newProgress >= 100) {
         clearInterval(interval);
         setIsComplete(true);
-        stopSound();
         if (onComplete) setTimeout(onComplete, 500);
       }
     }, 50);
 
     return () => clearInterval(interval);
-  }, [duration, onComplete, stopSound]);
-
-  // Cleanup on unmount
-  useEffect(() => () => stopSound(), [stopSound]);
+  }, [duration, onComplete]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden">
-      {/* <button
-        onClick={toggleSound}
-        className="absolute top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded z-10"
-      >
-        {soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
-      </button> */}
-
       <div className="text-center relative z-10 p-6 max-w-2xl mx-auto">
         {!isComplete ? (
           <>

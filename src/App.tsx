@@ -6,7 +6,7 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 5000);
+    const timer = setTimeout(() => setLoading(false), 10000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -14,8 +14,6 @@ export const App: React.FC = () => {
     <div>
       {loading ? (
         <GrimReaperLoader
-          audioSrc="./assets/horror-394969"
-          enableGeneratedSound={true}
           duration={20}
           onLoadingComplete={() => console.log("Done!")}
         />
