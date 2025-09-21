@@ -21,7 +21,7 @@ export const Input: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState<string>("");
 
   const minDate = "1980-12-31";
-  const maxDate = "2007-12-31";
+  const maxDate = "2009-12-31";
 
   const validateInputs = (): string | null => {
     if (!name.trim() || !age || !date || !gender)
