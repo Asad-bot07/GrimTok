@@ -9,7 +9,6 @@ createRoot(document.getElementById("root")!).render(
   <UserContextProvider>
     <BrowserRouter basename="/">
       {" "}
-      {/* Add basename if deployed on subpath */}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/output" element={<OutputPage />} />
