@@ -113,7 +113,7 @@ export const Input: React.FC = () => {
         <option value="">Select</option>
         <option value="male">Male</option>
         <option value="female">Female</option>
-        <option value="lgtv">LGTV+</option>
+        <option value="lgtv">Rainbow Crew</option>
         <option value="binary digit">Binary Digit</option>
         <option value="god">GOD</option>
       </select>
