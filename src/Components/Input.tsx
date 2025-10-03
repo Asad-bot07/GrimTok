@@ -27,7 +27,7 @@ export const Input: React.FC = () => {
     if (!name.trim() || !age || !date || !gender)
       return "Please fill all fields!";
     if (gender === "god")
-      return "How can a GOD die?? Dumbass!!! (It was a trap)";
+      return "How can a GOD die?? Silly Fellow!!! (It was a trap)";
     if (gender.toLowerCase() === "lgtv")
       return `There are only two genders! ${name} sounds gay tho 😏`;
     if (gender === "binary digit") return "Are you assembly or what?? 🤯";
